@@ -6,7 +6,7 @@ Notes:
 - Only use C# to create objects
 - Practie using github to submit assignments
 - Try to create patterns that evolve over time
-- Code is found under Assets/HeartScript.cs
+- Code is found under Assets/Scenes/HeartScript.cs
 
 https://github.com/user-attachments/assets/5c71be9b-2029-4b19-848c-4473cfeab7cf
 
