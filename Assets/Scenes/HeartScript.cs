@@ -1,50 +1,73 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+//using System;
 
 public class NewMonoBehaviourScript : MonoBehaviour
 {
     GameObject[] spheres;
-    static int numSphere = 100; 
+    static int numSphere = 500; 
     float time = 0f;
     Vector3[] initPos;
+    private Vector3[] startPos;    
+    private Vector3[] heartPos;    
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         spheres = new GameObject[numSphere];
         initPos = new Vector3[numSphere];
+        startPos = new Vector3[numSphere];
+        heartPos = new Vector3[numSphere];
 
         // making spheres
         for (int i = 0; i < numSphere; i++){
-            // circle radius
-            // circle radius 
-            float r = 10f; 
 
-            // drawing the elements 
-            spheres[i] = GameObject.CreatePrimitive(PrimitiveType.Sphere); 
+            // random start positions 
+            float randRange = 15f;
+            startPos[i] = new Vector3(
+                Random.Range(-randRange, randRange),
+                Random.Range(-randRange, randRange),
+                Random.Range(-randRange, randRange)
+            );
 
-            // making position of spheres with the radius 
-            initPos[i] = new Vector3(r * Mathf.Sin(i * 2 * Mathf.PI / numSphere), r * Mathf.Cos(i * 2 * Mathf.PI / numSphere), 10f);
-            spheres[i].transform.position = initPos[i];
+            // heart equation
+            float t = i * 6f * Mathf.PI / numSphere; 
+            float x = Mathf.Sin(t); 
+            float y = Mathf.Cos(t);
+            heartPos[i] = new Vector3(
+                5f * (float)(Mathf.Sqrt(2f) * Mathf.Pow(x, 3)),
+                5f * (float)((2f * y) - Mathf.Pow(y, 2) - Mathf.Pow(y, 3)),
+                20f
+            );
 
-            // Get the renderer of the spheres and assign colors.
-            Renderer sphereRenderer = spheres[i].GetComponent<Renderer>();
-            // hsv color space: https://en.wikipedia.org/wiki/HSL_and_HSV
-            float hue = (float) i / numSphere; // Hue cycles through 0 to 1
-            Color color = Color.HSVToRGB(hue, 1f, 1f); // Full saturation and brightness
-            sphereRenderer.material.color = color;
+            // making spheres
+            spheres[i] = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            spheres[i].transform.position = startPos[i];
+
+            // assigning color
+            Renderer r = spheres[i].GetComponent<Renderer>();
+            float hue = (float)i / numSphere;
+            Color color = Color.HSVToRGB(hue, 1f, 1f);
+            r.material.color = color;
         }   
     }
 
     // Update is called once per frame
     void Update()
     {
-         time += Time.deltaTime;
-        // changing color as it moves 
-        for (int i =0; i < numSphere; i++){
-            // position
-            // spheres[i].transform.position = initPos[i] 
-            //                                + new Vector3(Mathf.Sin(time) * 5f, Mathf.Cos(time)* 3f, 1f) ;
-            // color
+        time += Time.deltaTime;
+       
+        // NOTE : goes from 0 -> 1 -> 0 -> 1 continuously, multiplying 2f to go faster
+        float lerpFraction = 0.5f * (1 + Mathf.Sin(time * 2f));
+
+        // lerp from startPos to heartPos
+        for (int i = 0; i < numSphere; i++)
+        {
+            spheres[i].transform.position 
+                = Vector3.Lerp(startPos[i], heartPos[i], lerpFraction);
+
+            // FUN COLORS !!
             Renderer sphereRenderer = spheres[i].GetComponent<Renderer>();
             float hue = (float)i / numSphere; // Hue cycles through 0 to 1
             Color color = Color.HSVToRGB(Mathf.Abs(hue * Mathf.Sin(time)), Mathf.Cos(time), 2f + Mathf.Cos(time)); // Full saturation and brightness
